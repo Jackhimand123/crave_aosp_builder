@@ -16,14 +16,14 @@ jobs:
           curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
           mv ./crave ${HOME}/bin/
           sudo ln -sf ${HOME}/bin/crave /usr/bin/crave
-          echo "{\"username\": \"${{ secrets.CRAVE_USERNAME }}\", \"token\": \"${{ secrets.CRAVE_TOKEN }}\"}" > crave.conf
+          echo "{\"username\": \"$CRAVE_USERNAME\", \"token\": \"$CRAVE_TOKEN\"}" > crave.conf
         env:
-          CRAVE_USERNAME: ${{ secrets.lummydummy43@gmail.com }}
-          CRAVE_TOKEN: ${{ secrets.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyODUsInRlYW1JZCI6MTQsImlzQXBpS2V5Ijp0cnVlLCJpYXQiOjE3NzA4MjcwMTR9.lXwv3xMbIGm1vo63HBY_5uf2pUICBLH_hUubvk8qqj0 }}
+          CRAVE_USERNAME: ${{ secrets.CRAVE_USERNAME }}
+          CRAVE_TOKEN: ${{ secrets.CRAVE_TOKEN }}
 
       - name: Run crave runner
         run: |
-          crave ${{ secrets.CRAVE_FLAGS }} run --no-patch -- "
+          crave run --no-patch -- "
           echo 'Looking for runner...'
           if [ -d actions-runner ] ; then
             echo 'Runner found! Starting...'
