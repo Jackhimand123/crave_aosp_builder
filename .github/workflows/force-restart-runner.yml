@@ -1,4 +1,4 @@
-name: Start/Restart Selfhosted Runner
+name: Start-Restart Selfhosted Runner
 on:
   workflow_dispatch:
 
@@ -10,20 +10,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure the crave environment
+      - name: Configure Crave
         run: |
           mkdir -p ${HOME}/bin/
           curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
           mv ./crave ${HOME}/bin/
           sudo ln -sf ${HOME}/bin/crave /usr/bin/crave
-          if [ -f crave.conf.sample ]; then
-            envsubst < crave.conf.sample > crave.conf
-          else
-            echo '{"username": "${{ secrets.CRAVE_USERNAME }}", "token": "${{ secrets.CRAVE_TOKEN }}"}' > crave.conf
-          fi
+          echo "{\"username\": \"${{ secrets.CRAVE_USERNAME }}\", \"token\": \"${{ secrets.CRAVE_TOKEN }}\"}" > crave.conf
         env:
-          CRAVE_USERNAME: ${{ secrets.CRAVE_USERNAME }}
-          CRAVE_TOKEN: ${{ secrets.CRAVE_TOKEN }}
+          CRAVE_USERNAME: ${{ secrets.lummydummy43@gmail.com }}
+          CRAVE_TOKEN: ${{ secrets.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyODUsInRlYW1JZCI6MTQsImlzQXBpS2V5Ijp0cnVlLCJpYXQiOjE3NzA4MjcwMTR9.lXwv3xMbIGm1vo63HBY_5uf2pUICBLH_hUubvk8qqj0 }}
 
       - name: Run crave runner
         run: |
