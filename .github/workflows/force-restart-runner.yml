@@ -1,16 +1,41 @@
-      # Use 'run' instead of 'devspace' to bypass permission restrictions
-    - name: Run crave runner
-      run: |
-        crave ${{ secrets.CRAVE_FLAGS }} run --no-patch -- "
-        echo 'Looking for runner...'
-        if [ -d actions-runner ] ; then
-          echo 'Runner found! Starting...'
-          # Kill any old sessions and start the runner in the background
-          tmux kill-session -t ghactions || true
-          tmux new-session -d -s ghactions 'cd actions-runner && ./run.sh'
-          sleep 10
-          echo 'Runner successfully pushed to background.'
-        else
-          echo 'Error: actions-runner folder not found. Run configure-runner.yml first!'
-          exit 1
-        fi"
+name: Start/Restart Selfhosted Runner
+on:
+  workflow_dispatch:
+
+jobs:
+  run-crave-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure the crave environment
+        run: |
+          mkdir -p ${HOME}/bin/
+          curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
+          mv ./crave ${HOME}/bin/
+          sudo ln -sf ${HOME}/bin/crave /usr/bin/crave
+          if [ -f crave.conf.sample ]; then
+            envsubst < crave.conf.sample > crave.conf
+          else
+            echo '{"username": "${{ secrets.CRAVE_USERNAME }}", "token": "${{ secrets.CRAVE_TOKEN }}"}' > crave.conf
+          fi
+        env:
+          CRAVE_USERNAME: ${{ secrets.CRAVE_USERNAME }}
+          CRAVE_TOKEN: ${{ secrets.CRAVE_TOKEN }}
+
+      - name: Run crave runner
+        run: |
+          crave ${{ secrets.CRAVE_FLAGS }} run --no-patch -- "
+          echo 'Looking for runner...'
+          if [ -d actions-runner ] ; then
+            echo 'Runner found! Starting...'
+            tmux kill-session -t ghactions || true
+            tmux new-session -d -s ghactions 'cd actions-runner && ./run.sh'
+            sleep 10
+            echo 'Runner successfully pushed to background.'
+          else
+            echo 'Error: actions-runner folder not found. Run configure-runner.yml first!'
+            exit 1
+          fi"
